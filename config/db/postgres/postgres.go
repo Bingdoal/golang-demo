@@ -1,11 +1,11 @@
-package db
+package postgres
 
 import (
 	"fmt"
 	"go-demo/config"
 	"go-demo/internal/util/logger"
 
-	"gorm.io/driver/postgres"
+	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -19,7 +19,7 @@ var dsn = fmt.Sprintf(
 	config.Env.GetInt("postgres.port"),
 )
 
-var pgcon = postgres.New(postgres.Config{
+var pgcon = pg.New(pg.Config{
 	DSN:                  dsn,
 	PreferSimpleProtocol: true,
 })
@@ -40,13 +40,20 @@ func connectDB() *gorm.DB {
 	return db.Session(&gorm.Session{PrepareStmt: true})
 }
 
-var Postgres *gorm.DB
+var DB *gorm.DB
 
 func init() {
-	Postgres = connectDB()
-	migration()
+	DB = connectDB()
+	if config.Env.GetBool("migration.enabled") {
+		migration()
+	}
 }
 
 func migration() {
-
+	migration := newMigration()
+	if config.Env.GetBool("migration.latest") {
+		migration.Up()
+	} else {
+		migration.To(config.Env.GetUint("migration.version"))
+	}
 }

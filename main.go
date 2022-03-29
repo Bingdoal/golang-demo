@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-demo/api"
 	"go-demo/config"
+	_ "go-demo/config/db/postgres"
 
 	"github.com/gin-gonic/gin"
 )

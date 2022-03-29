@@ -1,0 +1,10 @@
+go.sum
+go-demo
+
+build/
+*.zip
+*.tar
+*.7z
+*.exe
+*.log
+.vscode/

@@ -1,8 +1,12 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"go-demo/internal/model"
 
-func AddRoute(route *gin.Engine) (group *gin.RouterGroup) {
+	"github.com/gin-gonic/gin"
+)
+
+func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/user")
 
 	group.GET("/", getUsers)
@@ -15,9 +19,19 @@ func AddRoute(route *gin.Engine) (group *gin.RouterGroup) {
 }
 
 func getUsers(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+	user := model.User{}
+	users, err := user.FindAll()
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "error",
+			"err":     err,
+		})
+	} else {
+		ctx.JSON(200, gin.H{
+			"message": "success",
+			"data":    users,
+		})
+	}
 }
 
 func getOneUser(ctx *gin.Context) {

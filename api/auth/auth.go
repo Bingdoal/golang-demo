@@ -2,7 +2,7 @@ package auth
 
 import "github.com/gin-gonic/gin"
 
-func AddRoute(route *gin.Engine) (group *gin.RouterGroup) {
+func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/auth")
 
 	group.POST("/login", login)

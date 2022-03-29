@@ -5,8 +5,8 @@ rm %MODULE_NAME%.zip
 
 SET GOOS=linux
 SET GOARCH=amd64
-go build ./main.go
+go build .
 SET GOOS=windows
 SET GOARCH=amd64
 
-zip %MODULE_NAME%.zip ./%MODULE_NAME% ./assets/
+7z a %MODULE_NAME%.zip ./%MODULE_NAME% ./assets/

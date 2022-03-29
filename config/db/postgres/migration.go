@@ -24,7 +24,7 @@ var dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 
 func newMigration() *Migration {
 	m := Migration{}
-	path := "file://assets/db/migration"
+	path := "file://_assets/db/migration"
 	var err error
 	m.client, err = migrate.New(path, dbUrl)
 	if err != nil {

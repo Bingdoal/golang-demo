@@ -1,8 +1,12 @@
 package post
 
-import "github.com/gin-gonic/gin"
+import (
+	"go-demo/internal/model"
 
-func AddRoute(route *gin.Engine) (group *gin.RouterGroup) {
+	"github.com/gin-gonic/gin"
+)
+
+func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/post")
 
 	group.GET("/", getPosts)
@@ -13,9 +17,19 @@ func AddRoute(route *gin.Engine) (group *gin.RouterGroup) {
 }
 
 func getPosts(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+	post := model.Post{}
+	posts, err := post.FindAll()
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"message": "error",
+			"err":     err,
+		})
+	} else {
+		ctx.JSON(200, gin.H{
+			"message": "success",
+			"data":    posts,
+		})
+	}
 }
 
 func createPost(ctx *gin.Context) {

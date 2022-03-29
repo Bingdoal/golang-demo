@@ -5,6 +5,8 @@ build/
 *.zip
 *.tar
 *.7z
+*.gz
+*.rar
 *.exe
 *.log
 .vscode/

@@ -16,11 +16,13 @@ func GetRoute() (route *gin.Engine) {
 	}
 	route = gin.Default()
 	route.Use(cors.Default())
-
 	route.GET("/", hello)
-	user.AddRoute(route)
-	post.AddRoute(route)
-	auth.AddRoute(route)
+
+	v1 := route.Group("/v1")
+	user.AddRoute(v1)
+	post.AddRoute(v1)
+	auth.AddRoute(v1)
+
 	return
 }
 

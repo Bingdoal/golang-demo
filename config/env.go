@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const envPath = "./assets/"
+const envPath = "_assets/"
 const envType = "yaml"
 const envPrefix = "demo"
 

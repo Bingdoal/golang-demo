@@ -5,6 +5,7 @@ import (
 	"go-demo/api/post"
 	"go-demo/api/user"
 	"go-demo/config"
+	"go-demo/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,8 +15,11 @@ func GetRoute() (route *gin.Engine) {
 	if config.Env.GetString("mode") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	route = gin.Default()
-	route.Use(cors.Default())
+	route = gin.New()
+	route.Use(gin.Logger(),
+		gin.CustomRecovery(middleware.ErrorHandler()),
+		cors.Default())
+
 	route.GET("/", hello)
 
 	v1 := route.Group("/v1")

@@ -7,7 +7,7 @@ import (
 )
 
 type BaseModel struct {
-	ID               uint      `json:"id" gorm:"primarykey"`
-	CreationTime     time.Time `json:"creation_time"`
-	ModificationTime time.Time `json:"modification_time"`
+	ID               uint64    `json:"id" gorm:"primarykey"`
+	CreationTime     time.Time `json:"creationTime"`
+	ModificationTime time.Time `json:"modificationTime"`
 }

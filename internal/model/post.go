@@ -2,51 +2,61 @@ package model
 
 import (
 	"go-demo/config/db/postgres"
-	"time"
+	"go-demo/internal/model/base"
 
+	v "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
 
 type Post struct {
-	BaseModel
+	base.BaseModel
 	Content  string `json:"content"`
 	AuthorID uint64 `json:"authorId"`
 	Author   User   `json:"author" gorm:"foreignkey:AuthorID"`
 }
 
-func postModel() *gorm.DB { return postgres.DB.Model(&Post{}) }
+func (post *Post) model() *gorm.DB { return postgres.DB.Model(post) }
+
+func (post *Post) FindOne() error {
+	return post.model().Where("id = ?", post.ID).First(post).Error
+}
 
 func (post *Post) FindAll() ([]Post, error) {
 	result := []Post{}
-	err := postModel().Find(&result).Error
+	err := post.model().Find(&result).Error
 	return result, err
 }
 
 func (post *Post) FindByUser() ([]Post, error) {
 	result := []Post{}
-	err := postModel().Where("author_id = ?", post.AuthorID).Find(&result).Error
+	err := post.model().Where("author_id = ?", post.AuthorID).Find(&result).Error
 	return result, err
 }
 
 func (post *Post) Create() error {
-	return postModel().Create(post).Error
+	err := v.ValidateStruct(post,
+		v.Field(&post.Content, v.Required, v.Min(2)),
+		v.Field(&post.AuthorID, v.Required),
+	)
+	if err != nil {
+		return err
+	}
+
+	return post.model().Create(post).Error
 }
 
 func (post *Post) Update() error {
-	return postModel().Save(post).Error
+	err := v.ValidateStruct(post,
+		v.Field(&post.Content, v.Required, v.Min(2)),
+		v.Field(&post.AuthorID, v.Required),
+	)
+	if err != nil {
+		return err
+	}
+
+	return post.model().Save(post).Error
 }
 
 func (post *Post) Delete() error {
-	return postModel().Delete(post).Error
-}
-
-func (post *Post) BeforeCreate(db *gorm.DB) (err error) {
-	post.CreationTime = time.Now()
-	post.ModificationTime = time.Now()
-	return
-}
-
-func (post *Post) BeforeUpdate(db *gorm.DB) (err error) {
-	post.ModificationTime = time.Now()
-	return
+	return post.model().Delete(post).Error
 }

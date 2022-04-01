@@ -2,50 +2,64 @@ package model
 
 import (
 	"go-demo/config/db/postgres"
-	"time"
+	"go-demo/internal/model/base"
 
+	v "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	_ "gorm.io/gorm"
 )
 
 type User struct {
-	BaseModel
+	base.BaseModel
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func userModel() *gorm.DB { return postgres.DB.Model(&User{}) }
+func (user *User) model() *gorm.DB { return postgres.DB.Model(user) }
 
 func (user *User) Create() error {
-	return userModel().Create(user).Error
+	err := v.ValidateStruct(user,
+		v.Field(&user.Name, v.Required, v.Min(2)),
+		v.Field(&user.Email, v.Required, v.Min(5), is.Email),
+		v.Field(&user.Password, v.Required, v.Min(6)),
+	)
+	if err != nil {
+		return err
+	}
+
+	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(password)
+
+	return user.model().Create(user).Error
 }
 
 func (user *User) Update() error {
-	return userModel().Save(user).Error
+	err := v.ValidateStruct(user,
+		v.Field(&user.Name, v.Required, v.Min(2)),
+		v.Field(&user.Email, v.Required, v.Min(5), is.Email),
+		v.Field(&user.Password, v.Required),
+	)
+	if err != nil {
+		return err
+	}
+	return user.model().Updates(user).Error
 }
 
 func (user *User) FindOne() error {
-	return userModel().Where("id = ?", user.ID).First(user).Error
+	return user.model().Where("id = ?", user.ID).First(user).Error
 }
 
 func (user *User) FindAll() ([]User, error) {
 	result := []User{}
-	err := userModel().Find(&result).Error
+	err := user.model().Find(&result).Error
 	return result, err
 }
 
 func (user *User) Delete() error {
-	return userModel().Delete(user).Error
-}
-
-func (user *User) BeforeCreate(db *gorm.DB) (err error) {
-	user.CreationTime = time.Now()
-	user.ModificationTime = time.Now()
-	return
-}
-
-func (user *User) BeforeUpdate(db *gorm.DB) (err error) {
-	user.ModificationTime = time.Now()
-	return
+	return user.model().Delete(user).Error
 }

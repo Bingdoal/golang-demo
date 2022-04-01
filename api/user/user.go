@@ -4,11 +4,9 @@ import (
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
 	"go-demo/internal/model"
-	"go-demo/internal/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
@@ -103,7 +101,7 @@ func getUserPosts(ctx *gin.Context) {
 
 func createUser(ctx *gin.Context) {
 	userDto := dto.UserDto{}
-	if err := util.BindJsonAndValid(ctx, &userDto); err != nil {
+	if err := ctx.BindJSON(&userDto); err != nil {
 		ctx.JSON(400, dto.RespDto{
 			Message: enum.MessageType(enum.Error),
 			Err:     err.Error(),
@@ -111,18 +109,10 @@ func createUser(ctx *gin.Context) {
 		return
 	}
 
-	password, err := bcrypt.GenerateFromPassword([]byte(userDto.Password), bcrypt.DefaultCost)
-	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
-		return
-	}
 	user := model.User{
 		Name:     userDto.Name,
 		Email:    userDto.Email,
-		Password: string(password),
+		Password: userDto.Password,
 	}
 	if err := user.Create(); err != nil {
 		ctx.JSON(400, dto.RespDto{
@@ -157,7 +147,7 @@ func updateUser(ctx *gin.Context) {
 	}
 
 	userDto := dto.UserDto{}
-	if err := util.BindJsonAndValid(ctx, &userDto); err != nil {
+	if err := ctx.BindJSON(&userDto); err != nil {
 		ctx.JSON(400, dto.RespDto{
 			Message: enum.MessageType(enum.Error),
 			Err:     err.Error(),

@@ -5,6 +5,7 @@ import (
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
 	"go-demo/internal/model"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,19 +37,68 @@ func getPosts(ctx *gin.Context) {
 }
 
 func createPost(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+	postDto := dto.PostDto{}
+	if err := ctx.BindJSON(&postDto); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
+	post := model.Post{
+		Content:  postDto.Content,
+		AuthorID: postDto.AuthorID,
+	}
+
+	if err := post.Create(); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
+	ctx.JSON(201, post)
 }
 
 func updatePost(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+	var id = ctx.Param("id")
+	var err error
+	post := model.Post{}
+	post.ID, err = strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		common.RespError(ctx, 400, "id must be uint.")
+		return
+	}
+	if err := post.FindOne(); err != nil {
+		common.RespError(ctx, 404, err.Error())
+		return
+	}
+	postDto := dto.PostDto{}
+
+	if err := ctx.BindJSON(&postDto); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
+	post.Content = postDto.Content
+
+	ctx.Status(204)
 }
 
 func deletePost(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+	var id = ctx.Param("id")
+	var err error
+	post := model.Post{}
+	post.ID, err = strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		common.RespError(ctx, 400, "id must be uint.")
+		return
+	}
+	if err := post.FindOne(); err != nil {
+		common.RespError(ctx, 404, err.Error())
+		return
+	}
+
+	if err := post.Delete(); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
+	ctx.Status(204)
 }

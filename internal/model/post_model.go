@@ -48,13 +48,13 @@ func (post *Post) Create() error {
 func (post *Post) Update() error {
 	err := v.ValidateStruct(post,
 		v.Field(&post.Content, v.Required, v.Min(2)),
-		v.Field(&post.AuthorID, v.Required),
+		v.Field(&post.AuthorID, v.Empty),
 	)
 	if err != nil {
 		return err
 	}
 
-	return post.model().Save(post).Error
+	return post.model().Updates(post).Error
 }
 
 func (post *Post) Delete() error {

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"go-demo/api/auth"
+	"fmt"
 	"go-demo/api/post"
 	"go-demo/api/user"
 	"go-demo/config"
@@ -11,27 +11,49 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetRoute() (route *gin.Engine) {
+type RouteInterface interface {
+	AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup)
+}
+
+type Rest struct {
+	server *gin.Engine
+}
+
+func (r *Rest) Add(root string, routes ...RouteInterface) *Rest {
+	group := r.server.Group(root)
+	for _, route := range routes {
+		route.AddRoute(group)
+	}
+	return r
+}
+
+func NewRest() *Rest {
 	if config.Env.GetString("mode") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	route = gin.New()
-	route.Use(gin.Logger(),
+
+	ginServer := gin.New()
+	ginServer.Use(gin.Logger(),
 		gin.CustomRecovery(middleware.ErrorHandler()),
 		cors.Default())
 
-	route.GET("/", hello)
+	rest := &Rest{
+		server: ginServer,
+	}
 
-	v1 := route.Group("/v1")
-	user.AddRoute(v1)
-	post.AddRoute(v1)
-	auth.AddRoute(v1)
-
-	return
+	return rest
 }
 
-func hello(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"hello": "world",
-	})
+func (r *Rest) Run() {
+	fmt.Printf("\n============ Start [%s] version:%s on:%s ============\n",
+		config.Env.GetString("name"),
+		config.Env.GetString("version"),
+		config.Env.GetString("server.port"))
+	r.server.Run(":" + config.Env.GetString("server.port"))
+}
+
+func SetUpRoute() *Rest {
+	rest := NewRest()
+	rest.Add("/v1", &user.UserRoute{}, &post.PostRoute{})
+	return rest
 }

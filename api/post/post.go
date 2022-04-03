@@ -1,12 +1,17 @@
 package post
 
 import (
+	"go-demo/api/common"
+	"go-demo/internal/dto"
+	"go-demo/internal/enum"
 	"go-demo/internal/model"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+type PostRoute struct{}
+
+func (p *PostRoute) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/post")
 
 	group.GET("/", getPosts)
@@ -20,14 +25,12 @@ func getPosts(ctx *gin.Context) {
 	post := model.Post{}
 	posts, err := post.FindAll()
 	if err != nil {
-		ctx.JSON(400, gin.H{
-			"message": "error",
-			"err":     err,
-		})
+		common.RespError(ctx, 400, err.Error())
+		return
 	} else {
-		ctx.JSON(200, gin.H{
-			"message": "success",
-			"data":    posts,
+		ctx.JSON(200, dto.RespDto{
+			Message: enum.MessageType(enum.Success),
+			Data:    posts,
 		})
 	}
 }

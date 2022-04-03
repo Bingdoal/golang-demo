@@ -1,6 +1,7 @@
 package user
 
 import (
+	"go-demo/api/common"
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
 	"go-demo/internal/model"
@@ -9,7 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+type UserRoute struct{ }
+
+func (u *UserRoute) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/user")
 
 	group.GET("/", getUsers)
@@ -25,10 +28,8 @@ func getUsers(ctx *gin.Context) {
 	user := model.User{}
 	users, err := user.FindAll()
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
+		return
 	} else {
 		ctx.JSON(200, dto.RespDto{
 			Message: enum.MessageType(enum.Success),
@@ -43,18 +44,12 @@ func getOneUser(ctx *gin.Context) {
 	user := model.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     "id must be uint.",
-		})
+		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
 	err = user.FindOne()
 	if err != nil {
-		ctx.JSON(404, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 404, err.Error())
 		return
 	}
 	ctx.JSON(200, dto.RespDto{
@@ -69,17 +64,11 @@ func getUserPosts(ctx *gin.Context) {
 	user := model.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     "id must be uint.",
-		})
+		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
 	if err := user.FindOne(); err != nil {
-		ctx.JSON(404, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 404, err.Error())
 		return
 	}
 
@@ -87,10 +76,7 @@ func getUserPosts(ctx *gin.Context) {
 	post.AuthorID = user.ID
 	posts, err := post.FindByUser()
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
 	}
 	ctx.JSON(200, dto.RespDto{
@@ -102,10 +88,7 @@ func getUserPosts(ctx *gin.Context) {
 func createUser(ctx *gin.Context) {
 	userDto := dto.UserDto{}
 	if err := ctx.BindJSON(&userDto); err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
 	}
 
@@ -115,11 +98,9 @@ func createUser(ctx *gin.Context) {
 		Password: userDto.Password,
 	}
 	if err := user.Create(); err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
+
 	}
 	ctx.JSON(201, dto.RespDto{
 		Message: enum.MessageType(enum.Success),
@@ -132,26 +113,17 @@ func updateUser(ctx *gin.Context) {
 	user := model.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     "id must be uint.",
-		})
+		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
 	if err := user.FindOne(); err != nil {
-		ctx.JSON(404, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 404, err.Error())
 		return
 	}
 
 	userDto := dto.UserDto{}
 	if err := ctx.BindJSON(&userDto); err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
 	}
 
@@ -162,10 +134,7 @@ func updateUser(ctx *gin.Context) {
 		user.Email = userDto.Email
 	}
 	if err := user.Update(); err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
 	}
 	ctx.Status(204)
@@ -175,27 +144,18 @@ func deleteUser(ctx *gin.Context) {
 	var err error
 	id, ok := ctx.Params.Get("id")
 	if !ok {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     "id is required.",
-		})
+		common.RespError(ctx, 400, "id is required.")
 		return
 	}
 	user := model.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     "id must be uint.",
-		})
+		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
 	err = user.Delete()
 	if err != nil {
-		ctx.JSON(400, dto.RespDto{
-			Message: enum.MessageType(enum.Error),
-			Err:     err.Error(),
-		})
+		common.RespError(ctx, 400, err.Error())
 		return
 	}
 	ctx.Status(204)

@@ -1,24 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"go-demo/api"
-	"go-demo/config"
 	_ "go-demo/config/db/postgres"
-
-	"github.com/gin-gonic/gin"
 )
 
-var route *gin.Engine
+var rest *api.Rest
 
 func init() {
-	route = api.GetRoute()
+	rest = api.SetUpRoute()
 }
 
 func main() {
-	fmt.Printf("\n============ Start [%s] version:%s on:%s ============\n",
-		config.Env.GetString("name"),
-		config.Env.GetString("version"),
-		config.Env.GetString("server.port"))
-	route.Run(":" + config.Env.GetString("server.port"))
+	rest.Run()
 }

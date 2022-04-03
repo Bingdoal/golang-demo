@@ -38,6 +38,23 @@ func (user *User) Create() error {
 	return user.model().Create(user).Error
 }
 
+func (user *User) Login() bool {
+	err := v.ValidateStruct(user,
+		v.Field(&user.Name, v.Required, v.Min(2)),
+		v.Field(&user.Password, v.Required),
+	)
+	if err != nil {
+		return false
+	}
+	loginPassword := user.Password
+	if err := user.model().Where("name = ?", user.Name).First(user).Error; err != nil {
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginPassword))
+	return err == nil
+}
+
 func (user *User) Update() error {
 	err := v.ValidateStruct(user,
 		v.Field(&user.Name, v.Required, v.Min(2)),

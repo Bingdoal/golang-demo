@@ -35,6 +35,7 @@ func connectDB() *gorm.DB {
 		panic(err)
 	}
 
+	db.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", config.Env.Get("postgres.schema")))
 	db.Exec(fmt.Sprintf("SET search_path='%s'", config.Env.Get("postgres.schema")))
 
 	return db.Session(&gorm.Session{PrepareStmt: true})

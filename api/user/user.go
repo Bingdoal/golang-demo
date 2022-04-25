@@ -10,10 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserRoute struct{ }
+type UserRoute struct{}
 
-func (u *UserRoute) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+func (u *UserRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/user")
+	group.Use(preMiddleware...)
 
 	group.GET("/", getUsers)
 	group.GET("/:id", getOneUser)

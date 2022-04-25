@@ -12,8 +12,9 @@ import (
 
 type PostRoute struct{}
 
-func (p *PostRoute) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+func (p *PostRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/post")
+	group.Use(preMiddleware...)
 
 	group.GET("/", getPosts)
 	group.POST("/", createPost)

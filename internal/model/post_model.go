@@ -4,7 +4,6 @@ import (
 	"go-demo/config/db/postgres"
 	"go-demo/internal/model/base"
 
-	v "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
 
@@ -34,25 +33,11 @@ func (post *Post) FindByUser() ([]Post, error) {
 }
 
 func (post *Post) Create() error {
-	err := v.ValidateStruct(post,
-		v.Field(&post.Content, v.Required, v.Min(2)),
-		v.Field(&post.AuthorID, v.Required),
-	)
-	if err != nil {
-		return err
-	}
 
 	return post.model().Create(post).Error
 }
 
 func (post *Post) Update() error {
-	err := v.ValidateStruct(post,
-		v.Field(&post.Content, v.Required, v.Min(2)),
-		v.Field(&post.AuthorID, v.Empty),
-	)
-	if err != nil {
-		return err
-	}
 
 	return post.model().Updates(post).Error
 }

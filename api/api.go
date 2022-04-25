@@ -12,7 +12,7 @@ import (
 )
 
 type RouteInterface interface {
-	AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup)
+	AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup)
 }
 
 type Rest struct {
@@ -27,6 +27,16 @@ func (r *Rest) Add(root string, routes ...RouteInterface) *Rest {
 	return r
 }
 
+func (r *Rest) AddWithMiddleware(root string,
+	middleware gin.HandlerFunc,
+	routes ...RouteInterface) *Rest {
+	group := r.server.Group(root)
+	for _, route := range routes {
+		route.AddRoute(group, middleware)
+	}
+	return r
+}
+
 func NewRest() *Rest {
 	if config.Env.GetString("mode") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
@@ -36,7 +46,6 @@ func NewRest() *Rest {
 	ginServer.Use(gin.Logger(),
 		gin.CustomRecovery(middleware.ErrorHandler()),
 		cors.Default())
-
 	rest := &Rest{
 		server: ginServer,
 	}

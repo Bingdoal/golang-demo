@@ -4,8 +4,6 @@ import (
 	"go-demo/config/db/postgres"
 	"go-demo/internal/model/base"
 
-	v "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -20,14 +18,6 @@ type User struct {
 func (user *User) model() *gorm.DB { return postgres.DB.Model(user) }
 
 func (user *User) Create() error {
-	err := v.ValidateStruct(user,
-		v.Field(&user.Name, v.Required, v.Min(2)),
-		v.Field(&user.Email, v.Required, v.Min(5), is.Email),
-		v.Field(&user.Password, v.Required, v.Min(6)),
-	)
-	if err != nil {
-		return err
-	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -39,31 +29,16 @@ func (user *User) Create() error {
 }
 
 func (user *User) Login() bool {
-	err := v.ValidateStruct(user,
-		v.Field(&user.Name, v.Required, v.Min(2)),
-		v.Field(&user.Password, v.Required),
-	)
-	if err != nil {
-		return false
-	}
 	loginPassword := user.Password
 	if err := user.model().Where("name = ?", user.Name).First(user).Error; err != nil {
 		return false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginPassword))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginPassword))
 	return err == nil
 }
 
 func (user *User) Update() error {
-	err := v.ValidateStruct(user,
-		v.Field(&user.Name, v.Required, v.Min(2)),
-		v.Field(&user.Email, v.Required, v.Min(5), is.Email),
-		v.Field(&user.Password, v.Required),
-	)
-	if err != nil {
-		return err
-	}
 	return user.model().Updates(user).Error
 }
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"go-demo/api/auth"
 	"go-demo/api/post"
 	"go-demo/api/user"
 	"go-demo/config"
@@ -63,6 +64,8 @@ func (r *Rest) Run() {
 
 func SetUpRoute() *Rest {
 	rest := NewRest()
-	rest.Add("/v1", &user.UserRoute{}, &post.PostRoute{})
+	rest.Add("/v1", &auth.AuthRoute{})
+	rest.AddWithMiddleware("/v1", middleware.AuthHandler,
+		&user.UserRoute{}, &post.PostRoute{})
 	return rest
 }

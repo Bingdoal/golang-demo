@@ -26,8 +26,8 @@ func (u *UserRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.Handle
 }
 
 func getUsers(ctx *gin.Context) {
-	user := model.User{}
-	users, err := user.FindAll()
+	users := model.Users{}
+	err := users.FindAll()
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
@@ -73,9 +73,8 @@ func getUserPosts(ctx *gin.Context) {
 		return
 	}
 
-	post := model.Post{}
-	post.AuthorID = user.ID
-	posts, err := post.FindByUser()
+	posts := model.Posts{}
+	err = posts.FindByUser(user.ID)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return

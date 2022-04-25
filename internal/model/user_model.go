@@ -8,6 +8,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type Users []User
+
+func (users *Users) model() *gorm.DB { return postgres.DB.Model(users) }
+
+func (users *Users) FindAll() error {
+	return users.model().Find(&users).Error
+}
+
 type User struct {
 	base.BaseModel
 	Name     string `json:"name"`
@@ -44,12 +52,6 @@ func (user *User) Update() error {
 
 func (user *User) FindOne() error {
 	return user.model().Where("id = ?", user.ID).First(user).Error
-}
-
-func (user *User) FindAll() ([]User, error) {
-	result := []User{}
-	err := user.model().Find(&result).Error
-	return result, err
 }
 
 func (user *User) Delete() error {

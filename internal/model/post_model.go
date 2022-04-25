@@ -7,6 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
+type Posts []Post
+
+func (posts *Posts) model() *gorm.DB { return postgres.DB.Model(posts) }
+
+func (posts *Posts) FindAll() error {
+	return posts.model().Find(&posts).Error
+}
+
+func (posts *Posts) FindByUser(authorId uint64) error {
+	return posts.model().Where("author_id = ?", authorId).Find(&posts).Error
+}
+
 type Post struct {
 	base.BaseModel
 	Content  string `json:"content"`
@@ -18,18 +30,6 @@ func (post *Post) model() *gorm.DB { return postgres.DB.Model(post) }
 
 func (post *Post) FindOne() error {
 	return post.model().Where("id = ?", post.ID).First(post).Error
-}
-
-func (post *Post) FindAll() ([]Post, error) {
-	result := []Post{}
-	err := post.model().Find(&result).Error
-	return result, err
-}
-
-func (post *Post) FindByUser() ([]Post, error) {
-	result := []Post{}
-	err := post.model().Where("author_id = ?", post.AuthorID).Find(&result).Error
-	return result, err
 }
 
 func (post *Post) Create() error {

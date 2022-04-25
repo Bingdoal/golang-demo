@@ -24,8 +24,8 @@ func (p *PostRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.Handle
 }
 
 func getPosts(ctx *gin.Context) {
-	post := model.Post{}
-	posts, err := post.FindAll()
+	posts := model.Posts{}
+	err := posts.FindAll()
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return

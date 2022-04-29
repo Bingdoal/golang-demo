@@ -35,12 +35,7 @@ func newMigration() *Migration {
 }
 
 func (m *Migration) To(targetVersion uint) {
-	currentVersion, _, nilVersion := m.client.Version()
-	if nilVersion != nil {
-		currentVersion = 0
-	}
-	stepVersion := targetVersion - currentVersion
-	if err := m.client.Steps(int(stepVersion)); err != nil && err != migrate.ErrNoChange {
+	if err := m.client.Migrate(targetVersion); err != nil && err != migrate.ErrNoChange {
 		logger.Error.Panic(err)
 	}
 	afterVersion, _, _ := m.client.Version()

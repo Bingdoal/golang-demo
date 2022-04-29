@@ -11,7 +11,7 @@ import (
 )
 
 var dsn = fmt.Sprintf(
-	"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Taipei",
+	"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 	config.Env.Get("postgres.host"),
 	config.Env.Get("postgres.user"),
 	config.Env.GetString("postgres.password"),
@@ -52,9 +52,10 @@ func init() {
 
 func migration() {
 	migration := newMigration()
-	if config.Env.GetBool("migration.latest") {
+	target := config.Env.GetString("migration.target")
+	if target == "latest" {
 		migration.Up()
 	} else {
-		migration.To(config.Env.GetUint("migration.version"))
+		migration.To(config.Env.GetUint("migration.target"))
 	}
 }

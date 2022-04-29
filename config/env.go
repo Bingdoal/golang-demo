@@ -26,6 +26,7 @@ func initViper() *viper.Viper {
 		mergeConfig(v, "env."+os.Args[1])
 	}
 
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.SetEnvPrefix(envPrefix)
 	v.AutomaticEnv()
 
@@ -42,7 +43,6 @@ func loadConfig(v *viper.Viper, fileName string) {
 	v.SetConfigName(fileName)
 	v.SetConfigType(envType)
 	v.AddConfigPath(envPath)
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	err := v.ReadInConfig()
 	if err != nil {
 		fmt.Println("[Error] Loading config failed: ", err)
@@ -54,7 +54,6 @@ func mergeConfig(v *viper.Viper, fileName string) {
 	v.SetConfigName(fileName)
 	v.SetConfigType(envType)
 	v.AddConfigPath(envPath)
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	err := v.MergeInConfig()
 	if err != nil {
 		fmt.Println("[Error] Merge config failed: ", err)

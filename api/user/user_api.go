@@ -4,30 +4,44 @@ import (
 	"go-demo/api/common"
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
-	"go-demo/internal/model"
+	"go-demo/internal/model/dao"
+	"go-demo/internal/model/dao/interfaces"
+	"go-demo/internal/model/entity"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UserRoute struct{}
+type userApi struct {
+	userDao interfaces.IUserDao
+	postDao interfaces.IPostDao
+}
 
-func (u *UserRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) userApi {
+	return userApi{
+		userDao: userDao,
+		postDao: postDao,
+	}
+}
+
+var UserApi = NewUserApi(dao.UserDao, dao.PostDao)
+
+func (u userApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/user")
 	group.Use(preMiddleware...)
 
-	group.GET("/", getUsers)
-	group.GET("/:id", getOneUser)
-	group.GET("/:id/post", getUserPosts)
-	group.POST("/", createUser)
-	group.PUT("/:id", updateUser)
-	group.DELETE("/:id", deleteUser)
+	group.GET("/", u.getUsers)
+	group.GET("/:id", u.getOneUser)
+	group.GET("/:id/post", u.getUserPosts)
+	group.POST("/", u.createUser)
+	group.PUT("/:id", u.updateUser)
+	group.DELETE("/:id", u.deleteUser)
 	return
 }
 
-func getUsers(ctx *gin.Context) {
-	users := model.Users{}
-	err := users.FindAll()
+func (u userApi) getUsers(ctx *gin.Context) {
+	var users entity.Users
+	err := u.userDao.FindAll(&users)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
@@ -39,16 +53,16 @@ func getUsers(ctx *gin.Context) {
 	}
 }
 
-func getOneUser(ctx *gin.Context) {
+func (u userApi) getOneUser(ctx *gin.Context) {
 	var id, _ = ctx.Params.Get("id")
 	var err error
-	user := model.User{}
+	user := entity.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	err = user.FindOne()
+	err = u.userDao.FindOne(&user)
 	if err != nil {
 		common.RespError(ctx, 404, err.Error())
 		return
@@ -59,22 +73,22 @@ func getOneUser(ctx *gin.Context) {
 	})
 }
 
-func getUserPosts(ctx *gin.Context) {
+func (u userApi) getUserPosts(ctx *gin.Context) {
 	var id, _ = ctx.Params.Get("id")
 	var err error
-	user := model.User{}
+	user := entity.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	if err := user.FindOne(); err != nil {
+	if err := u.userDao.FindOne(&user); err != nil {
 		common.RespError(ctx, 404, err.Error())
 		return
 	}
 
-	posts := model.Posts{}
-	err = posts.FindByUser(user.ID)
+	var posts entity.Posts
+	err = u.postDao.FindByUser(user.ID, &posts)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
@@ -85,19 +99,19 @@ func getUserPosts(ctx *gin.Context) {
 	})
 }
 
-func createUser(ctx *gin.Context) {
+func (u userApi) createUser(ctx *gin.Context) {
 	userDto := dto.UserDto{}
 	if err := ctx.BindJSON(&userDto); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	}
 
-	user := model.User{
+	user := entity.User{
 		Name:     userDto.Name,
 		Email:    userDto.Email,
 		Password: userDto.Password,
 	}
-	if err := user.Create(); err != nil {
+	if err := u.userDao.Create(&user); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 
@@ -107,16 +121,16 @@ func createUser(ctx *gin.Context) {
 	})
 }
 
-func updateUser(ctx *gin.Context) {
+func (u userApi) updateUser(ctx *gin.Context) {
 	var id, _ = ctx.Params.Get("id")
 	var err error
-	user := model.User{}
+	user := entity.User{}
 	user.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	if err := user.FindOne(); err != nil {
+	if err := u.userDao.FindOne(&user); err != nil {
 		common.RespError(ctx, 404, err.Error())
 		return
 	}
@@ -133,27 +147,25 @@ func updateUser(ctx *gin.Context) {
 	if userDto.Email != "" {
 		user.Email = userDto.Email
 	}
-	if err := user.Update(); err != nil {
+	if err := u.userDao.Update(&user); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	}
 	ctx.Status(204)
 }
 
-func deleteUser(ctx *gin.Context) {
-	var err error
-	id, ok := ctx.Params.Get("id")
+func (u userApi) deleteUser(ctx *gin.Context) {
+	idStr, ok := ctx.Params.Get("id")
 	if !ok {
 		common.RespError(ctx, 400, "id is required.")
 		return
 	}
-	user := model.User{}
-	user.ID, err = strconv.ParseUint(id, 10, 64)
+	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	err = user.Delete()
+	err = u.userDao.Delete(id)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return

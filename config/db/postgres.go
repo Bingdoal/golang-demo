@@ -1,4 +1,4 @@
-package postgres
+package db
 
 import (
 	"fmt"
@@ -25,6 +25,7 @@ var pgcon = pg.New(pg.Config{
 })
 
 func connectDB() *gorm.DB {
+	logger.Debug.Println("postgres dsn: ", dsn)
 	db, err := gorm.Open(pgcon, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,

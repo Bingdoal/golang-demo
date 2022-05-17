@@ -4,28 +4,40 @@ import (
 	"go-demo/api/common"
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
-	"go-demo/internal/model"
+	"go-demo/internal/model/dao"
+	"go-demo/internal/model/dao/interfaces"
+	"go-demo/internal/model/entity"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type PostRoute struct{}
+type postApi struct {
+	postDao interfaces.IPostDao
+}
 
-func (p *PostRoute) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+var PostApi = NewPostApi(dao.PostDao)
+
+func NewPostApi(postDao interfaces.IPostDao) postApi {
+	return postApi{
+		postDao: postDao,
+	}
+}
+
+func (p *postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/post")
 	group.Use(preMiddleware...)
 
-	group.GET("/", getPosts)
-	group.POST("/", createPost)
-	group.PUT("/:id", updatePost)
-	group.DELETE("/:id", deletePost)
+	group.GET("/", p.getPosts)
+	group.POST("/", p.createPost)
+	group.PUT("/:id", p.updatePost)
+	group.DELETE("/:id", p.deletePost)
 	return
 }
 
-func getPosts(ctx *gin.Context) {
-	posts := model.Posts{}
-	err := posts.FindAll()
+func (p *postApi) getPosts(ctx *gin.Context) {
+	var posts entity.Posts
+	err := p.postDao.FindAll(&posts)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
@@ -37,19 +49,19 @@ func getPosts(ctx *gin.Context) {
 	}
 }
 
-func createPost(ctx *gin.Context) {
+func (p *postApi) createPost(ctx *gin.Context) {
 	postDto := dto.PostDto{}
 	if err := ctx.BindJSON(&postDto); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	}
 
-	post := model.Post{
+	post := entity.Post{
 		Content:  postDto.Content,
 		AuthorID: postDto.AuthorID,
 	}
 
-	if err := post.Create(); err != nil {
+	if err := p.postDao.Create(&post); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	}
@@ -57,20 +69,20 @@ func createPost(ctx *gin.Context) {
 	ctx.JSON(201, post)
 }
 
-func updatePost(ctx *gin.Context) {
+func (p *postApi) updatePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
-	post := model.Post{}
+	post := entity.Post{}
 	post.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	if err := post.FindOne(); err != nil {
+	if err := p.postDao.FindOne(&post); err != nil {
 		common.RespError(ctx, 404, err.Error())
 		return
 	}
-	postDto := dto.PostDto{}
+	var postDto dto.PostDto
 
 	if err := ctx.BindJSON(&postDto); err != nil {
 		common.RespError(ctx, 400, err.Error())
@@ -78,25 +90,28 @@ func updatePost(ctx *gin.Context) {
 	}
 
 	post.Content = postDto.Content
-
+	if err := p.postDao.Update(&post); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
 	ctx.Status(204)
 }
 
-func deletePost(ctx *gin.Context) {
+func (p *postApi) deletePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
-	post := model.Post{}
+	post := entity.Post{}
 	post.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		common.RespError(ctx, 400, "id must be uint.")
 		return
 	}
-	if err := post.FindOne(); err != nil {
+	if err := p.postDao.FindOne(&post); err != nil {
 		common.RespError(ctx, 404, err.Error())
 		return
 	}
 
-	if err := post.Delete(); err != nil {
+	if err := p.postDao.Delete(post.ID); err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	}

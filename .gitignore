@@ -1,6 +1,4 @@
-go.sum
 go-demo
-
 build/
 *.zip
 *.tar

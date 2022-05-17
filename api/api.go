@@ -12,16 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RouteInterface interface {
+type IApiRoute interface {
 	AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup)
 }
 
 type Rest struct {
-	server *gin.Engine
+	Server *gin.Engine
 }
 
-func (r *Rest) Add(root string, routes ...RouteInterface) *Rest {
-	group := r.server.Group(root)
+func (r *Rest) Add(root string, routes ...IApiRoute) *Rest {
+	group := r.Server.Group(root)
 	for _, route := range routes {
 		route.AddRoute(group)
 	}
@@ -30,8 +30,8 @@ func (r *Rest) Add(root string, routes ...RouteInterface) *Rest {
 
 func (r *Rest) AddWithMiddleware(root string,
 	middleware gin.HandlerFunc,
-	routes ...RouteInterface) *Rest {
-	group := r.server.Group(root)
+	routes ...IApiRoute) *Rest {
+	group := r.Server.Group(root)
 	for _, route := range routes {
 		route.AddRoute(group, middleware)
 	}
@@ -48,7 +48,7 @@ func NewRest() *Rest {
 		gin.CustomRecovery(middleware.ErrorHandler()),
 		cors.Default())
 	rest := &Rest{
-		server: ginServer,
+		Server: ginServer,
 	}
 
 	return rest
@@ -59,13 +59,13 @@ func (r *Rest) Run() {
 		config.Env.GetString("name"),
 		config.Env.GetString("version"),
 		config.Env.GetString("server.port"))
-	r.server.Run(":" + config.Env.GetString("server.port"))
+	r.Server.Run(":" + config.Env.GetString("server.port"))
 }
 
 func SetUpRoute() *Rest {
 	rest := NewRest()
-	rest.Add("/v1", &auth.AuthRoute{})
+	rest.Add("/v1", &auth.AuthApi)
 	rest.AddWithMiddleware("/v1", middleware.AuthHandler,
-		&user.UserRoute{}, &post.PostRoute{})
+		&user.UserApi, &post.PostApi)
 	return rest
 }

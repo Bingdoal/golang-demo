@@ -5,11 +5,10 @@
 + [ ] gin gonic
   + [x] Restful API
   + [x] Middleware
-  + [ ] View
 + [x] gorm
 + [x] migration
 + [x] viper
-+ [ ] logrus
++ [ ] logger 
 + [x] Auth
 + [ ] test
 + [ ] i18n

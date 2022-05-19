@@ -17,6 +17,11 @@ type userDao struct {
 
 // Create implements interfaces.IUserDao
 func (dao userDao) Create(src *entity.User) error {
+	hashPwd, err := bcrypt.GenerateFromPassword([]byte(src.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	src.Password = string(hashPwd)
 	return dao.db.Create(src).Error
 }
 
@@ -36,7 +41,7 @@ func (dao userDao) FindAll(dest *entity.Users) error {
 
 // FindOne implements interfaces.IUserDao
 func (dao userDao) FindOne(dest *entity.User) error {
-	return dao.db.First(dest).Error
+	return dao.db.Where(dest).First(dest).Error
 }
 
 // Login implements interfaces.IUserDao
@@ -60,7 +65,7 @@ func (dao userDao) Update(src *entity.User) error {
 }
 
 func NewUserDao(db *gorm.DB) interfaces.IUserDao {
-	return userDao{
+	return &userDao{
 		db: db,
 	}
 }

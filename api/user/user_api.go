@@ -17,14 +17,14 @@ type userApi struct {
 	postDao interfaces.IPostDao
 }
 
-func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) userApi {
-	return userApi{
+var UserApi = NewUserApi(dao.UserDao, dao.PostDao)
+
+func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) common.IApiRoute {
+	return &userApi{
 		userDao: userDao,
 		postDao: postDao,
 	}
 }
-
-var UserApi = NewUserApi(dao.UserDao, dao.PostDao)
 
 func (u userApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/user")

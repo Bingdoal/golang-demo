@@ -1,4 +1,4 @@
-package jwt_service
+package tests
 
 import (
 	"go-demo/internal/service/jwt_service"

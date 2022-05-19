@@ -2,12 +2,13 @@ package main
 
 import (
 	"go-demo/api"
-	_ "go-demo/config/db"
+	"go-demo/internal/util"
 )
 
 var rest *api.Rest
 
 func init() {
+	util.Init()
 	rest = api.SetUpRoute()
 }
 

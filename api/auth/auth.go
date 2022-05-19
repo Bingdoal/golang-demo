@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"go-demo/api/common"
 	"go-demo/internal/dto"
 	"go-demo/internal/enum"
 	"go-demo/internal/middleware"
@@ -19,13 +20,13 @@ type authApi struct {
 
 var AuthApi = NewAuthApi(dao.UserDao)
 
-func NewAuthApi(userDao interfaces.IUserDao) authApi {
-	return authApi{
+func NewAuthApi(userDao interfaces.IUserDao) common.IApiRoute {
+	return &authApi{
 		userDao: userDao,
 	}
 }
 
-func (a *authApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func (a authApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/auth")
 	group.Use(preMiddleware...)
 
@@ -35,7 +36,7 @@ func (a *authApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerF
 	return
 }
 
-func (a *authApi) login(ctx *gin.Context) {
+func (a authApi) login(ctx *gin.Context) {
 	var loginDto dto.LoginDto
 	if err := ctx.BindJSON(&loginDto); err != nil {
 		ctx.JSON(400, dto.RespDto{
@@ -67,7 +68,7 @@ func (a *authApi) login(ctx *gin.Context) {
 	})
 }
 
-func (a *authApi) refresh(ctx *gin.Context) {
+func (a authApi) refresh(ctx *gin.Context) {
 	subject := ctx.GetString("subject")
 	claims := ctx.GetStringMapString("claims")
 	token := jwt_service.GenerateToken(subject, claims)
@@ -76,7 +77,7 @@ func (a *authApi) refresh(ctx *gin.Context) {
 	})
 }
 
-func (a *authApi) logout(ctx *gin.Context) {
+func (a authApi) logout(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"message": "logout",
 	})

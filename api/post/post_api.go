@@ -18,13 +18,13 @@ type postApi struct {
 
 var PostApi = NewPostApi(dao.PostDao)
 
-func NewPostApi(postDao interfaces.IPostDao) postApi {
-	return postApi{
+func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
+	return &postApi{
 		postDao: postDao,
 	}
 }
 
-func (p *postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func (p postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
 	group = route.Group("/post")
 	group.Use(preMiddleware...)
 
@@ -35,7 +35,7 @@ func (p *postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerF
 	return
 }
 
-func (p *postApi) getPosts(ctx *gin.Context) {
+func (p postApi) getPosts(ctx *gin.Context) {
 	var posts entity.Posts
 	err := p.postDao.FindAll(&posts)
 	if err != nil {
@@ -49,7 +49,7 @@ func (p *postApi) getPosts(ctx *gin.Context) {
 	}
 }
 
-func (p *postApi) createPost(ctx *gin.Context) {
+func (p postApi) createPost(ctx *gin.Context) {
 	postDto := dto.PostDto{}
 	if err := ctx.BindJSON(&postDto); err != nil {
 		common.RespError(ctx, 400, err.Error())
@@ -69,7 +69,7 @@ func (p *postApi) createPost(ctx *gin.Context) {
 	ctx.JSON(201, post)
 }
 
-func (p *postApi) updatePost(ctx *gin.Context) {
+func (p postApi) updatePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
 	post := entity.Post{}
@@ -97,7 +97,7 @@ func (p *postApi) updatePost(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
-func (p *postApi) deletePost(ctx *gin.Context) {
+func (p postApi) deletePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
 	post := entity.Post{}

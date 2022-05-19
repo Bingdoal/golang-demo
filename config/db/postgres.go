@@ -25,7 +25,6 @@ var pgcon = pg.New(pg.Config{
 })
 
 func connectDB() *gorm.DB {
-	logger.Debug.Println("postgres dsn: ", dsn)
 	db, err := gorm.Open(pgcon, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -46,8 +45,11 @@ var DB *gorm.DB
 
 func init() {
 	DB = connectDB()
+	logger.Debug.Println("postgres connection established.")
 	if config.Env.GetBool("migration.enabled") {
+		logger.Debug.Println("db migration start.")
 		migration()
+		logger.Debug.Println("db migration end.")
 	}
 }
 

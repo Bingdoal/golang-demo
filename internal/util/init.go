@@ -2,14 +2,22 @@ package util
 
 import (
 	"fmt"
+	"go-demo/api"
 	"go-demo/config"
-	_ "go-demo/config/db"
+	"go-demo/config/db"
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/entity"
+	"go-demo/internal/service"
 	"go-demo/internal/util/logger"
 )
 
 func Init() {
+	config.InitConfig()
+	logger.InitLogger()
+	db.InitDB()
+	dao.InitDao()
+	service.InitService()
+	api.InitApiInstance()
 	initAdminUser()
 }
 

@@ -17,7 +17,11 @@ type userApi struct {
 	postDao interfaces.IPostDao
 }
 
-var UserApi = NewUserApi(dao.UserDao, dao.PostDao)
+var UserApi common.IApiRoute
+
+func Init() {
+	UserApi = NewUserApi(dao.UserDao, dao.PostDao)
+}
 
 func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) common.IApiRoute {
 	return &userApi{

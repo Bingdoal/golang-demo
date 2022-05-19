@@ -16,7 +16,11 @@ type postApi struct {
 	postDao interfaces.IPostDao
 }
 
-var PostApi = NewPostApi(dao.PostDao)
+var PostApi common.IApiRoute
+
+func Init() {
+	PostApi = NewPostApi(dao.PostDao)
+}
 
 func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
 	return &postApi{

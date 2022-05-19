@@ -10,21 +10,12 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var dsn = fmt.Sprintf(
-	"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-	config.Env.Get("postgres.host"),
-	config.Env.Get("postgres.user"),
-	config.Env.GetString("postgres.password"),
-	config.Env.Get("postgres.database"),
-	config.Env.GetInt("postgres.port"),
-)
+func connectDB(dsn string) *gorm.DB {
+	var pgcon = pg.New(pg.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true,
+	})
 
-var pgcon = pg.New(pg.Config{
-	DSN:                  dsn,
-	PreferSimpleProtocol: true,
-})
-
-func connectDB() *gorm.DB {
 	db, err := gorm.Open(pgcon, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -43,9 +34,17 @@ func connectDB() *gorm.DB {
 
 var DB *gorm.DB
 
-func init() {
-	DB = connectDB()
-	logger.Debug.Println("postgres connection established.")
+func InitDB() {
+	var dsn = fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+		config.Env.Get("postgres.host"),
+		config.Env.Get("postgres.user"),
+		config.Env.GetString("postgres.password"),
+		config.Env.Get("postgres.database"),
+		config.Env.GetInt("postgres.port"),
+	)
+	DB = connectDB(dsn)
+	logger.Info.Println("postgres connection established.")
 	if config.Env.GetBool("migration.enabled") {
 		logger.Debug.Println("db migration start.")
 		migration()

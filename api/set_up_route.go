@@ -11,6 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func InitApiInstance() {
+	auth.Init()
+	post.Init()
+	user.Init()
+}
+
 func SetUpRoute() *Rest {
 	if config.Env.GetString("mode") == "prod" {
 		gin.SetMode(gin.ReleaseMode)

@@ -57,6 +57,6 @@ func NewPostDao(db *gorm.DB) interfaces.IPostDao {
 // 事先宣告為 interface 才能在 compile time 進行檢查
 var PostDao interfaces.IPostDao
 
-func init() {
+func initPostDao() {
 	PostDao = NewPostDao(db.DB)
 }

@@ -18,7 +18,11 @@ type authApi struct {
 	userDao interfaces.IUserDao
 }
 
-var AuthApi = NewAuthApi(dao.UserDao)
+var AuthApi common.IApiRoute
+
+func Init() {
+	AuthApi = NewAuthApi(dao.UserDao)
+}
 
 func NewAuthApi(userDao interfaces.IUserDao) common.IApiRoute {
 	return &authApi{

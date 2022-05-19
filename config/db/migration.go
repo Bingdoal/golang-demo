@@ -14,19 +14,18 @@ type Migration struct {
 	client *migrate.Migrate
 }
 
-var dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=%s",
-	config.Env.GetString("postgres.user"),
-	config.Env.GetString("postgres.password"),
-	config.Env.GetString("postgres.host"),
-	config.Env.GetInt("postgres.port"),
-	config.Env.GetString("postgres.database"),
-	config.Env.GetString("postgres.schema"),
-)
-
 func newMigration() *Migration {
 	m := Migration{}
 	path := "file://_assets/db/migration"
 	var err error
+	var dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=%s",
+		config.Env.GetString("postgres.user"),
+		config.Env.GetString("postgres.password"),
+		config.Env.GetString("postgres.host"),
+		config.Env.GetInt("postgres.port"),
+		config.Env.GetString("postgres.database"),
+		config.Env.GetString("postgres.schema"),
+	)
 	m.client, err = migrate.New(path, dbUrl)
 	if err != nil {
 		logger.Error.Panic(err)

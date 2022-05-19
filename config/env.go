@@ -14,7 +14,7 @@ const envPrefix = "demo"
 
 var Env *viper.Viper
 
-func init() {
+func InitConfig() {
 	Env = initViper()
 }
 
@@ -24,6 +24,9 @@ func initViper() *viper.Viper {
 	loadConfig(v, "env")
 	if len(os.Args) >= 2 {
 		mergeConfig(v, "env."+os.Args[1])
+		v.Set("mode", os.Args[1])
+	} else {
+		mergeConfig(v, "env."+v.GetString("mode"))
 	}
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

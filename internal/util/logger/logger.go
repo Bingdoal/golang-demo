@@ -15,7 +15,7 @@ var (
 	Error   *log.Logger
 )
 
-func init() {
+func InitLogger() {
 	level := strings.ToLower(config.Env.GetString("logger"))
 	levelMap := map[string]int{
 		"debug":   4,

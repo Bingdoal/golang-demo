@@ -7,11 +7,8 @@ import (
 
 var rest *api.Rest
 
-func init() {
+func main() {
 	util.Init()
 	rest = api.SetUpRoute()
-}
-
-func main() {
 	rest.Run()
 }

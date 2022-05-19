@@ -73,6 +73,6 @@ func NewUserDao(db *gorm.DB) interfaces.IUserDao {
 // 事先宣告為 interface 才能在 compile time 進行檢查
 var UserDao interfaces.IUserDao
 
-func init() {
+func initUserDao() {
 	UserDao = NewUserDao(db.DB)
 }

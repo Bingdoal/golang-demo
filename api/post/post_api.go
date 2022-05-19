@@ -7,6 +7,7 @@ import (
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
+	"go-demo/internal/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func Init() {
 }
 
 func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
+	util.IfNilPanic(postDao)
 	return &postApi{
 		postDao: postDao,
 	}

@@ -3,6 +3,7 @@ package user
 import (
 	"go-demo/api/common"
 	"go-demo/internal/dto"
+	"go-demo/internal/dto/basic"
 	"go-demo/internal/enum"
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/dao/interfaces"
@@ -39,7 +40,6 @@ func (u userApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFu
 
 	group.GET("/", u.getUsers)
 	group.GET("/:id", u.getOneUser)
-	group.GET("/:id/post", u.getUserPosts)
 	group.POST("/", u.createUser)
 	group.PUT("/:id", u.updateUser)
 	group.DELETE("/:id", u.deleteUser)
@@ -47,15 +47,27 @@ func (u userApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFu
 }
 
 func (u userApi) getUsers(ctx *gin.Context) {
+	pagination, err := common.GetPagination(ctx)
+	if err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+	var filter entity.User
+	if err := ctx.BindQuery(&filter); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
 	var users entity.Users
-	err := u.userDao.FindAll(&users)
+	pagination.Total, err = u.userDao.FindAll(filter, pagination, &users)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	} else {
-		ctx.JSON(200, dto.RespDto{
-			Message: enum.MessageType(enum.Success),
-			Data:    users,
+		ctx.JSON(200, basic.RespDto{
+			Message:    enum.MessageType(enum.Success),
+			Data:       users,
+			Pagination: &pagination,
 		})
 	}
 }
@@ -74,35 +86,9 @@ func (u userApi) getOneUser(ctx *gin.Context) {
 		common.RespError(ctx, 404, err.Error())
 		return
 	}
-	ctx.JSON(200, dto.RespDto{
+	ctx.JSON(200, basic.RespDto{
 		Message: enum.MessageType(enum.Success),
 		Data:    user,
-	})
-}
-
-func (u userApi) getUserPosts(ctx *gin.Context) {
-	var id, _ = ctx.Params.Get("id")
-	var err error
-	user := entity.User{}
-	user.ID, err = strconv.ParseUint(id, 10, 64)
-	if err != nil {
-		common.RespError(ctx, 400, "id must be uint.")
-		return
-	}
-	if err := u.userDao.FindOne(&user); err != nil {
-		common.RespError(ctx, 404, err.Error())
-		return
-	}
-
-	var posts entity.Posts
-	err = u.postDao.FindByUser(user.ID, &posts)
-	if err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
-	}
-	ctx.JSON(200, dto.RespDto{
-		Message: enum.MessageType(enum.Success),
-		Data:    posts,
 	})
 }
 
@@ -123,8 +109,11 @@ func (u userApi) createUser(ctx *gin.Context) {
 		return
 
 	}
-	ctx.JSON(201, dto.RespDto{
+	ctx.JSON(201, basic.RespDto{
 		Message: enum.MessageType(enum.Success),
+		Data: basic.CreatedDto{
+			ID: user.ID,
+		},
 	})
 }
 

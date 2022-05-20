@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"go-demo/config/db"
+	"go-demo/internal/dto/basic"
 	"go-demo/internal/model/base"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
@@ -36,8 +37,15 @@ func (dao userDao) Delete(id uint64) error {
 }
 
 // FindAll implements interfaces.IUserDao
-func (dao userDao) FindAll(dest *entity.Users) error {
-	return dao.db.Find(dest).Error
+func (dao userDao) FindAll(condition entity.User, pagination basic.Pagination, dest *entity.Users) (count int64, err error) {
+	tx := dao.db.Model(condition).Where(condition)
+	tx = SetPagination(tx, pagination)
+	err = tx.Find(dest).Error
+	if err != nil {
+		return
+	}
+	err = tx.Count(&count).Error
+	return
 }
 
 // FindOne implements interfaces.IUserDao

@@ -3,6 +3,7 @@ package post
 import (
 	"go-demo/api/common"
 	"go-demo/internal/dto"
+	"go-demo/internal/dto/basic"
 	"go-demo/internal/enum"
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/dao/interfaces"
@@ -42,15 +43,27 @@ func (p postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFu
 }
 
 func (p postApi) getPosts(ctx *gin.Context) {
+	pagination, err := common.GetPagination(ctx)
+	if err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+	var filter entity.Post
+	if err := ctx.BindQuery(&filter); err != nil {
+		common.RespError(ctx, 400, err.Error())
+		return
+	}
+
 	var posts entity.Posts
-	err := p.postDao.FindAll(&posts)
+	pagination.Total, err = p.postDao.FindAll(filter, pagination, &posts)
 	if err != nil {
 		common.RespError(ctx, 400, err.Error())
 		return
 	} else {
-		ctx.JSON(200, dto.RespDto{
-			Message: enum.MessageType(enum.Success),
-			Data:    posts,
+		ctx.JSON(200, basic.RespDto{
+			Message:    enum.MessageType(enum.Success),
+			Data:       posts,
+			Pagination: &pagination,
 		})
 	}
 }
@@ -72,7 +85,12 @@ func (p postApi) createPost(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(201, post)
+	ctx.JSON(201, basic.RespDto{
+		Message: enum.MessageType(enum.Success),
+		Data: basic.CreatedDto{
+			ID: post.ID,
+		},
+	})
 }
 
 func (p postApi) updatePost(ctx *gin.Context) {

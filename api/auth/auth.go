@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-demo/api/common"
 	"go-demo/internal/dto"
+	"go-demo/internal/dto/basic"
 	"go-demo/internal/enum"
 	"go-demo/internal/middleware"
 	"go-demo/internal/model/dao"
@@ -45,7 +46,7 @@ func (a authApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFu
 func (a authApi) login(ctx *gin.Context) {
 	var loginDto dto.LoginDto
 	if err := ctx.BindJSON(&loginDto); err != nil {
-		ctx.JSON(400, dto.RespDto{
+		ctx.JSON(400, basic.RespDto{
 			Message: enum.MessageType(enum.Error),
 			Err:     err.Error(),
 		})
@@ -58,7 +59,7 @@ func (a authApi) login(ctx *gin.Context) {
 	}
 
 	if err := a.userDao.Login(loginDto.Username, loginDto.Password); err != nil {
-		ctx.JSON(400, dto.RespDto{
+		ctx.JSON(400, basic.RespDto{
 			Message: enum.MessageType(enum.Error),
 			Err:     err.Error(),
 		})

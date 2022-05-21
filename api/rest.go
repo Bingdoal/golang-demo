@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"go-demo/api/common"
 	"go-demo/config"
+	"net/http"
+	"net/http/httptest"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,6 +30,12 @@ func (r *Rest) AddWithMiddleware(root string,
 		route.AddRoute(group, middleware)
 	}
 	return r
+}
+
+func (r *Rest) TestApi(req *http.Request) *httptest.ResponseRecorder {
+	res := httptest.NewRecorder()
+	r.Server.ServeHTTP(res, req)
+	return res
 }
 
 func (r *Rest) Run() {

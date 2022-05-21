@@ -16,7 +16,7 @@ type Migration struct {
 
 func newMigration() *Migration {
 	m := Migration{}
-	path := "file://_assets/db/migration"
+	path := "file://" + config.Env.GetString("migration.path")
 	var err error
 	var dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=%s",
 		config.Env.GetString("postgres.user"),

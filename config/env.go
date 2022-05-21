@@ -8,25 +8,24 @@ import (
 	"github.com/spf13/viper"
 )
 
-const envPath = "_assets/"
 const envType = "yaml"
 const envPrefix = "demo"
 
 var Env *viper.Viper
 
-func InitConfig() {
-	Env = initViper()
+func InitConfig(path string) {
+	Env = initViper(path)
 }
 
-func initViper() *viper.Viper {
+func initViper(path string) *viper.Viper {
 	v := viper.New()
 
-	loadConfig(v, "env")
+	loadConfig(v, path, "env")
 	if len(os.Args) >= 2 {
-		mergeConfig(v, "env."+os.Args[1])
+		mergeConfig(v, path, "env."+os.Args[1])
 		v.Set("mode", os.Args[1])
 	} else {
-		mergeConfig(v, "env."+v.GetString("mode"))
+		mergeConfig(v, path, "env."+v.GetString("mode"))
 	}
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -42,10 +41,10 @@ func initViper() *viper.Viper {
 	return v
 }
 
-func loadConfig(v *viper.Viper, fileName string) {
+func loadConfig(v *viper.Viper, path string, fileName string) {
 	v.SetConfigName(fileName)
 	v.SetConfigType(envType)
-	v.AddConfigPath(envPath)
+	v.AddConfigPath(path)
 	err := v.ReadInConfig()
 	if err != nil {
 		fmt.Println("[Error] Loading config failed: ", err)
@@ -53,13 +52,12 @@ func loadConfig(v *viper.Viper, fileName string) {
 	}
 }
 
-func mergeConfig(v *viper.Viper, fileName string) {
+func mergeConfig(v *viper.Viper, path string, fileName string) {
 	v.SetConfigName(fileName)
 	v.SetConfigType(envType)
-	v.AddConfigPath(envPath)
+	v.AddConfigPath(path)
 	err := v.MergeInConfig()
 	if err != nil {
-		fmt.Println("[Error] Merge config failed: ", err)
-		panic(err)
+		fmt.Println("[WARN] Merge config failed: ", err)
 	}
 }

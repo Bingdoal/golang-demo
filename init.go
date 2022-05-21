@@ -10,8 +10,10 @@ import (
 	"go-demo/internal/util/logger"
 )
 
+var envPath = "_assets/"
+
 func Initialization() {
-	config.InitConfig()
+	config.InitConfig(envPath)
 	logger.InitLogger()
 	db.InitDB()
 	dao.InitDao()

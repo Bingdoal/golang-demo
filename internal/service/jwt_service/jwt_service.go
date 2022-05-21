@@ -8,7 +8,8 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var jwtKey = []byte("demo-secret-key")
+const jwtKey = "demo-secret-key"
+const jwtTimeoutMinute = 24 * 60
 
 type authClaims struct {
 	jwt.StandardClaims
@@ -16,7 +17,7 @@ type authClaims struct {
 }
 
 func GenerateToken(subject string, body map[string]string) string {
-	expiresAt := time.Now().Add(24 * time.Hour).Unix()
+	expiresAt := time.Now().Add(jwtTimeoutMinute * time.Minute).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, authClaims{
 		StandardClaims: jwt.StandardClaims{
 			Subject:   subject,
@@ -24,7 +25,7 @@ func GenerateToken(subject string, body map[string]string) string {
 		},
 		Body: body,
 	})
-	tokenString, _ := token.SignedString(jwtKey)
+	tokenString, _ := token.SignedString([]byte(jwtKey))
 	return tokenString
 }
 
@@ -34,7 +35,7 @@ func ValidateToken(tokenString string) (string, map[string]string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtKey, nil
+		return []byte(jwtKey), nil
 	})
 	if err != nil {
 		return "", map[string]string{}, err

@@ -6,7 +6,6 @@ import (
 	"go-demo/internal/model/base"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
-	"go-demo/internal/util"
 
 	"gorm.io/gorm"
 )
@@ -51,7 +50,6 @@ func (dao postDao) Update(src *entity.Post) error {
 }
 
 func NewPostDao(db *gorm.DB) interfaces.IPostDao {
-	util.IfNilPanic(db)
 	return postDao{
 		db: db,
 	}

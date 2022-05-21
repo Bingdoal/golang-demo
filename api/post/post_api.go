@@ -1,6 +1,7 @@
 package post
 
 import (
+	"fmt"
 	"go-demo/api/common"
 	"go-demo/internal/dto"
 	"go-demo/internal/dto/basic"
@@ -8,7 +9,6 @@ import (
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
-	"go-demo/internal/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,6 @@ func Init() {
 }
 
 func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
-	util.IfNilPanic(postDao)
 	return &postApi{
 		postDao: postDao,
 	}
@@ -51,7 +50,7 @@ func (p postApi) getPosts(ctx *gin.Context) {
 		})
 	}
 	var filter entity.Post
-	if err := ctx.BindQuery(&filter); err != nil {
+	if err := ctx.ShouldBind(&filter); err != nil {
 		panic(common.StatusError{
 			Status:  400,
 			Message: err.Error(),
@@ -59,6 +58,7 @@ func (p postApi) getPosts(ctx *gin.Context) {
 	}
 
 	var posts entity.Posts
+	fmt.Printf("filter: %+v\n", filter)
 	pagination.Total, err = p.postDao.FindAll(filter, pagination, &posts)
 	if err != nil {
 		panic(common.StatusError{

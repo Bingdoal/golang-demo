@@ -11,7 +11,6 @@ import (
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
 	"go-demo/internal/service/jwt_service"
-	"go-demo/internal/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +26,6 @@ func Init() {
 }
 
 func NewAuthApi(userDao interfaces.IUserDao) common.IApiRoute {
-	util.IfNilPanic(userDao)
 	return &authApi{
 		userDao: userDao,
 	}

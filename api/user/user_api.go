@@ -2,13 +2,14 @@ package user
 
 import (
 	"go-demo/api/common"
+	"go-demo/config"
 	"go-demo/internal/dto"
 	"go-demo/internal/dto/basic"
 	"go-demo/internal/enum"
+	"go-demo/internal/model/base"
 	"go-demo/internal/model/dao"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
-	"go-demo/internal/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -26,8 +27,6 @@ func Init() {
 }
 
 func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) common.IApiRoute {
-	util.IfNilPanic(userDao)
-	util.IfNilPanic(postDao)
 	return &userApi{
 		userDao: userDao,
 		postDao: postDao,
@@ -144,7 +143,7 @@ func (u userApi) updateUser(ctx *gin.Context) {
 	}
 	if err := u.userDao.FindOne(&user); err != nil {
 		panic(common.StatusError{
-			Status:  400,
+			Status:  404,
 			Message: err.Error(),
 		})
 	}
@@ -157,12 +156,8 @@ func (u userApi) updateUser(ctx *gin.Context) {
 		})
 	}
 
-	if userDto.Name != "" {
-		user.Name = userDto.Name
-	}
-	if userDto.Email != "" {
-		user.Email = userDto.Email
-	}
+	user.Email = userDto.Email
+
 	if err := u.userDao.Update(&user); err != nil {
 		panic(common.StatusError{
 			Status:  400,
@@ -185,6 +180,19 @@ func (u userApi) deleteUser(ctx *gin.Context) {
 		panic(common.StatusError{
 			Status:  400,
 			Message: err.Error(),
+		})
+	}
+	user := entity.User{BaseModel: base.BaseModel{ID: id}}
+	if err := u.userDao.FindOne(&user); err != nil {
+		panic(common.StatusError{
+			Status:  404,
+			Message: err.Error(),
+		})
+	}
+	if user.Name == config.Env.GetString("features.admin.username") {
+		panic(common.StatusError{
+			Status:  400,
+			Message: "Can't delete admin user.",
 		})
 	}
 	err = u.userDao.Delete(id)

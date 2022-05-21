@@ -8,7 +8,6 @@ type Posts []Post
 
 type Post struct {
 	base.BaseModel
-	Content  string `json:"content"`
-	AuthorID uint64 `json:"authorId"`
-	Author   User   `json:"author" gorm:"foreignkey:AuthorID"`
+	Content  string `json:"content" form:"content"`
+	AuthorID uint64 `json:"authorId" form:"authorId"`
 }

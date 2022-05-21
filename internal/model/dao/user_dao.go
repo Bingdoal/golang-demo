@@ -7,7 +7,6 @@ import (
 	"go-demo/internal/model/base"
 	"go-demo/internal/model/dao/interfaces"
 	"go-demo/internal/model/entity"
-	"go-demo/internal/util"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -74,7 +73,6 @@ func (dao userDao) Update(src *entity.User) error {
 }
 
 func NewUserDao(db *gorm.DB) interfaces.IUserDao {
-	util.IfNilPanic(db)
 	return &userDao{
 		db: db,
 	}

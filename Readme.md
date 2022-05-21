@@ -10,6 +10,9 @@
 + [x] viper
 + [ ] logger
 + [x] Auth
-+ [x] test
++ [ ] test
+  + [x] testing
+  + [ ] testify
+  + [ ] ginkgo
 + [ ] i18n
 + [x] validator

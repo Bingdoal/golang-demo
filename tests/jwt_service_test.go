@@ -17,7 +17,7 @@ func TestGenerateToken(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Test Case 1",
+			name: "Test Jwt validation",
 			args: args{
 				subject: "userId",
 				body: map[string]string{
@@ -28,7 +28,6 @@ func TestGenerateToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			token := jwt_service.GenerateToken(tt.args.subject, tt.args.body)
 			subject, body, err := jwt_service.ValidateToken(token)
 			if err != nil {

@@ -45,20 +45,26 @@ func (p postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFu
 func (p postApi) getPosts(ctx *gin.Context) {
 	pagination, err := common.GetPagination(ctx)
 	if err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 	var filter entity.Post
 	if err := ctx.BindQuery(&filter); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	var posts entity.Posts
 	pagination.Total, err = p.postDao.FindAll(filter, pagination, &posts)
 	if err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	} else {
 		ctx.JSON(200, basic.RespDto{
 			Message:    enum.MessageType(enum.Success),
@@ -71,8 +77,10 @@ func (p postApi) getPosts(ctx *gin.Context) {
 func (p postApi) createPost(ctx *gin.Context) {
 	postDto := dto.PostDto{}
 	if err := ctx.BindJSON(&postDto); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	post := entity.Post{
@@ -81,8 +89,10 @@ func (p postApi) createPost(ctx *gin.Context) {
 	}
 
 	if err := p.postDao.Create(&post); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	ctx.JSON(201, basic.RespDto{
@@ -99,24 +109,32 @@ func (p postApi) updatePost(ctx *gin.Context) {
 	post := entity.Post{}
 	post.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		common.RespError(ctx, 400, "id must be uint.")
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 	if err := p.postDao.FindOne(&post); err != nil {
-		common.RespError(ctx, 404, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 	var postDto dto.PostDto
 
 	if err := ctx.BindJSON(&postDto); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	post.Content = postDto.Content
 	if err := p.postDao.Update(&post); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 	ctx.Status(204)
 }
@@ -127,17 +145,24 @@ func (p postApi) deletePost(ctx *gin.Context) {
 	post := entity.Post{}
 	post.ID, err = strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		common.RespError(ctx, 400, "id must be uint.")
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
+
 	if err := p.postDao.FindOne(&post); err != nil {
-		common.RespError(ctx, 404, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	if err := p.postDao.Delete(post.ID); err != nil {
-		common.RespError(ctx, 400, err.Error())
-		return
+		panic(common.StatusError{
+			Status:  400,
+			Message: err.Error(),
+		})
 	}
 
 	ctx.Status(204)

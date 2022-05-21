@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"go-demo/api"
 	"go-demo/config"
 	"go-demo/config/db"
@@ -11,7 +10,7 @@ import (
 	"go-demo/internal/util/logger"
 )
 
-func Init() {
+func Initialization() {
 	config.InitConfig()
 	logger.InitLogger()
 	db.InitDB()
@@ -29,7 +28,6 @@ func initAdminUser() {
 		logger.Debug.Println("Create admin user.")
 		admin.Password = config.Env.GetString("features.admin.password")
 		admin.Email = config.Env.GetString("features.admin.email")
-		fmt.Printf("admin: %v\n", admin)
 		dao.UserDao.Create(&admin)
 	}
 }

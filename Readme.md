@@ -8,8 +8,8 @@
 + [x] gorm
 + [x] migration
 + [x] viper
-+ [ ] logger 
++ [ ] logger
 + [x] Auth
-+ [ ] test
++ [x] test
 + [ ] i18n
 + [x] validator

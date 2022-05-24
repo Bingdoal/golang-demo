@@ -17,8 +17,9 @@ type Rest struct {
 
 func (r *Rest) Add(root string, routes ...common.IApiRoute) *Rest {
 	group := r.Server.Group(root)
+	group.Use(r.middlerSlice...)
 	for _, route := range routes {
-		route.AddRoute(group, r.middlerSlice...)
+		route.AddRoute(group)
 	}
 	r.middlerSlice = nil
 	return r

@@ -33,9 +33,8 @@ func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) common
 	}
 }
 
-func (u userApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func (u userApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/user")
-	group.Use(preMiddleware...)
 
 	group.GET("", u.getUsers)
 	group.GET("/:id", u.getOneUser)

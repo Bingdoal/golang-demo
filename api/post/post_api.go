@@ -30,9 +30,8 @@ func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
 	}
 }
 
-func (p postApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func (p postApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/post")
-	group.Use(preMiddleware...)
 
 	group.GET("/", p.getPosts)
 	group.POST("/", p.createPost)

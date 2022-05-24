@@ -31,10 +31,8 @@ func NewAuthApi(userDao interfaces.IUserDao) common.IApiRoute {
 	}
 }
 
-func (a authApi) AddRoute(route *gin.RouterGroup, preMiddleware ...gin.HandlerFunc) (group *gin.RouterGroup) {
+func (a authApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/auth")
-	group.Use(preMiddleware...)
-
 	group.POST("/login", a.login)
 	group.POST("/refresh", middleware.AuthHandler, a.refresh)
 	group.POST("/logout", middleware.AuthHandler, a.logout)

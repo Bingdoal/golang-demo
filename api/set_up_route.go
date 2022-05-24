@@ -32,7 +32,6 @@ func SetUpRoute() *Rest {
 	}
 
 	rest.Add("/v1", auth.AuthApi)
-	rest.AddWithMiddleware("/v1", middleware.AuthHandler,
-		user.UserApi, post.PostApi)
+	rest.Middleware(middleware.AuthHandler).Add("/v1", user.UserApi, post.PostApi)
 	return rest
 }

@@ -11,24 +11,21 @@ import (
 )
 
 type Rest struct {
-	Server *gin.Engine
+	Server       *gin.Engine
+	middlerSlice []gin.HandlerFunc
 }
 
 func (r *Rest) Add(root string, routes ...common.IApiRoute) *Rest {
 	group := r.Server.Group(root)
 	for _, route := range routes {
-		route.AddRoute(group)
+		route.AddRoute(group, r.middlerSlice...)
 	}
+	r.middlerSlice = nil
 	return r
 }
 
-func (r *Rest) AddWithMiddleware(root string,
-	middleware gin.HandlerFunc,
-	routes ...common.IApiRoute) *Rest {
-	group := r.Server.Group(root)
-	for _, route := range routes {
-		route.AddRoute(group, middleware)
-	}
+func (r *Rest) Middleware(middlerSlice ...gin.HandlerFunc) *Rest {
+	r.middlerSlice = append(r.middlerSlice, middlerSlice...)
 	return r
 }
 

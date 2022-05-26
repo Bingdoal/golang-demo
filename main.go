@@ -1,13 +1,15 @@
 package main
 
 import (
-	"go-demo/api"
+	"go-demo/config"
+	"go-demo/config/db"
+	"go-demo/internal/util/logger"
 )
 
-var rest *api.Rest
-
 func main() {
-	Initialization()
-	rest = api.SetUpRoute()
-	rest.Run()
+	config.InitConfig("./_assets")
+	logger.InitLogger()
+	postgres := db.NewDB(config.Env)
+	app := InitApp(postgres)
+	app.Run()
 }

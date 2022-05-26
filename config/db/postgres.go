@@ -5,6 +5,7 @@ import (
 	"go-demo/config"
 	"go-demo/internal/util/logger"
 
+	"github.com/spf13/viper"
 	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -34,22 +35,31 @@ func connectDB(dsn string) *gorm.DB {
 
 var DB *gorm.DB
 
-func InitDB() {
+func GetDB() *gorm.DB {
+	return DB
+}
+
+func NewDB(config *viper.Viper) *gorm.DB {
 	var dsn = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-		config.Env.Get("postgres.host"),
-		config.Env.Get("postgres.user"),
-		config.Env.GetString("postgres.password"),
-		config.Env.Get("postgres.database"),
-		config.Env.GetInt("postgres.port"),
+		config.Get("postgres.host"),
+		config.Get("postgres.user"),
+		config.GetString("postgres.password"),
+		config.Get("postgres.database"),
+		config.GetInt("postgres.port"),
 	)
-	DB = connectDB(dsn)
+	db := connectDB(dsn)
 	logger.Info.Println("postgres connection established.")
-	if config.Env.GetBool("migration.enabled") {
+	if config.GetBool("migration.enabled") {
 		logger.Debug.Println("db migration start.")
 		migration()
 		logger.Debug.Println("db migration end.")
 	}
+	return db
+}
+
+func InitDB() {
+	DB = NewDB(config.Env)
 }
 
 func migration() {

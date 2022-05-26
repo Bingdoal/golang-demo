@@ -24,8 +24,6 @@ func initViper(path string) *viper.Viper {
 	if len(os.Args) >= 2 {
 		mergeConfig(v, path, "env."+os.Args[1])
 		v.Set("mode", os.Args[1])
-	} else {
-		mergeConfig(v, path, "env."+v.GetString("mode"))
 	}
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

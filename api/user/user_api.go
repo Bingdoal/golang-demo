@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type userApi struct {
+type TypeUserApi struct {
 	userDao interfaces.IUserDao
 	postDao interfaces.IPostDao
 }
@@ -26,14 +26,14 @@ func Init() {
 	UserApi = NewUserApi(dao.UserDao, dao.PostDao)
 }
 
-func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) common.IApiRoute {
-	return &userApi{
+func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) *TypeUserApi {
+	return &TypeUserApi{
 		userDao: userDao,
 		postDao: postDao,
 	}
 }
 
-func (u userApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+func (u TypeUserApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/user")
 
 	group.GET("", u.getUsers)
@@ -44,7 +44,7 @@ func (u userApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	return
 }
 
-func (u userApi) getUsers(ctx *gin.Context) {
+func (u TypeUserApi) getUsers(ctx *gin.Context) {
 	pagination, err := common.GetPagination(ctx)
 	if err != nil {
 		panic(common.StatusError{
@@ -76,7 +76,7 @@ func (u userApi) getUsers(ctx *gin.Context) {
 	}
 }
 
-func (u userApi) getOneUser(ctx *gin.Context) {
+func (u TypeUserApi) getOneUser(ctx *gin.Context) {
 	var id, _ = ctx.Params.Get("id")
 	var err error
 	user := entity.User{}
@@ -100,7 +100,7 @@ func (u userApi) getOneUser(ctx *gin.Context) {
 	})
 }
 
-func (u userApi) createUser(ctx *gin.Context) {
+func (u TypeUserApi) createUser(ctx *gin.Context) {
 	userDto := dto.UserDto{}
 	if err := ctx.BindJSON(&userDto); err != nil {
 		panic(common.StatusError{
@@ -129,7 +129,7 @@ func (u userApi) createUser(ctx *gin.Context) {
 	})
 }
 
-func (u userApi) updateUser(ctx *gin.Context) {
+func (u TypeUserApi) updateUser(ctx *gin.Context) {
 	var id, _ = ctx.Params.Get("id")
 	var err error
 	user := entity.User{}
@@ -166,7 +166,7 @@ func (u userApi) updateUser(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
-func (u userApi) deleteUser(ctx *gin.Context) {
+func (u TypeUserApi) deleteUser(ctx *gin.Context) {
 	idStr, ok := ctx.Params.Get("id")
 	if !ok {
 		panic(common.StatusError{

@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type authApi struct {
+type TypeAuthApi struct {
 	userDao interfaces.IUserDao
 }
 
@@ -25,13 +25,13 @@ func Init() {
 	AuthApi = NewAuthApi(dao.UserDao)
 }
 
-func NewAuthApi(userDao interfaces.IUserDao) common.IApiRoute {
-	return &authApi{
+func NewAuthApi(userDao interfaces.IUserDao) *TypeAuthApi {
+	return &TypeAuthApi{
 		userDao: userDao,
 	}
 }
 
-func (a authApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+func (a TypeAuthApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/auth")
 	group.POST("/login", a.login)
 	group.POST("/refresh", middleware.AuthHandler, a.refresh)
@@ -39,7 +39,7 @@ func (a authApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	return
 }
 
-func (a authApi) login(ctx *gin.Context) {
+func (a TypeAuthApi) login(ctx *gin.Context) {
 	var loginDto dto.LoginDto
 	if err := ctx.BindJSON(&loginDto); err != nil {
 		ctx.JSON(400, basic.RespDto{
@@ -71,7 +71,7 @@ func (a authApi) login(ctx *gin.Context) {
 	})
 }
 
-func (a authApi) refresh(ctx *gin.Context) {
+func (a TypeAuthApi) refresh(ctx *gin.Context) {
 	subject := ctx.GetString("subject")
 	claims := ctx.GetStringMapString("claims")
 	token := jwt_service.GenerateToken(subject, claims)
@@ -80,7 +80,7 @@ func (a authApi) refresh(ctx *gin.Context) {
 	})
 }
 
-func (a authApi) logout(ctx *gin.Context) {
+func (a TypeAuthApi) logout(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"message": "logout",
 	})

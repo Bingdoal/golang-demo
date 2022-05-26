@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type postApi struct {
+type TypePostApi struct {
 	postDao interfaces.IPostDao
 }
 
@@ -24,13 +24,13 @@ func Init() {
 	PostApi = NewPostApi(dao.PostDao)
 }
 
-func NewPostApi(postDao interfaces.IPostDao) common.IApiRoute {
-	return &postApi{
+func NewPostApi(postDao interfaces.IPostDao) *TypePostApi {
+	return &TypePostApi{
 		postDao: postDao,
 	}
 }
 
-func (p postApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
+func (p TypePostApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	group = route.Group("/post")
 
 	group.GET("/", p.getPosts)
@@ -40,7 +40,7 @@ func (p postApi) AddRoute(route *gin.RouterGroup) (group *gin.RouterGroup) {
 	return
 }
 
-func (p postApi) getPosts(ctx *gin.Context) {
+func (p TypePostApi) getPosts(ctx *gin.Context) {
 	pagination, err := common.GetPagination(ctx)
 	if err != nil {
 		panic(common.StatusError{
@@ -73,7 +73,7 @@ func (p postApi) getPosts(ctx *gin.Context) {
 	}
 }
 
-func (p postApi) createPost(ctx *gin.Context) {
+func (p TypePostApi) createPost(ctx *gin.Context) {
 	postDto := dto.PostDto{}
 	if err := ctx.BindJSON(&postDto); err != nil {
 		panic(common.StatusError{
@@ -102,7 +102,7 @@ func (p postApi) createPost(ctx *gin.Context) {
 	})
 }
 
-func (p postApi) updatePost(ctx *gin.Context) {
+func (p TypePostApi) updatePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
 	post := entity.Post{}
@@ -138,7 +138,7 @@ func (p postApi) updatePost(ctx *gin.Context) {
 	ctx.Status(204)
 }
 
-func (p postApi) deletePost(ctx *gin.Context) {
+func (p TypePostApi) deletePost(ctx *gin.Context) {
 	var id = ctx.Param("id")
 	var err error
 	post := entity.Post{}

@@ -10,17 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type postDao struct {
+type TypePostDao struct {
 	db *gorm.DB
 }
 
 // Create implements interfaces.IPostDao
-func (dao postDao) Create(src *entity.Post) error {
+func (dao TypePostDao) Create(src *entity.Post) error {
 	return dao.db.Create(src).Error
 }
 
 // Delete implements interfaces.IPostDao
-func (dao postDao) Delete(id uint64) error {
+func (dao TypePostDao) Delete(id uint64) error {
 	return dao.db.Delete(&entity.Post{
 		BaseModel: base.BaseModel{
 			ID: id,
@@ -29,7 +29,7 @@ func (dao postDao) Delete(id uint64) error {
 }
 
 // FindAll implements interfaces.IPostDao
-func (dao postDao) FindAll(condition entity.Post, pagination basic.Pagination, dest *entity.Posts) (count int64, err error) {
+func (dao TypePostDao) FindAll(condition entity.Post, pagination basic.Pagination, dest *entity.Posts) (count int64, err error) {
 	tx := dao.db.Model(condition).Where(condition)
 	tx = SetPagination(tx, pagination)
 	err = tx.Find(dest).Error
@@ -40,17 +40,17 @@ func (dao postDao) FindAll(condition entity.Post, pagination basic.Pagination, d
 	return
 }
 
-func (dao postDao) FindOne(dest *entity.Post) error {
+func (dao TypePostDao) FindOne(dest *entity.Post) error {
 	return dao.db.First(dest).Error
 }
 
 // Update implements interfaces.IPostDao
-func (dao postDao) Update(src *entity.Post) error {
+func (dao TypePostDao) Update(src *entity.Post) error {
 	return dao.db.Updates(src).Error
 }
 
 func NewPostDao(db *gorm.DB) interfaces.IPostDao {
-	return postDao{
+	return TypePostDao{
 		db: db,
 	}
 }

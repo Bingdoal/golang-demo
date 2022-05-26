@@ -8,3 +8,5 @@ build/
 *.exe
 *.log
 .vscode/
+
+wire_gen.go

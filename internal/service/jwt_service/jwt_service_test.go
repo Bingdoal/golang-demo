@@ -1,7 +1,6 @@
-package tests
+package jwt_service
 
 import (
-	"go-demo/internal/service/jwt_service"
 	"reflect"
 	"testing"
 )
@@ -28,8 +27,8 @@ func TestGenerateToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token := jwt_service.GenerateToken(tt.args.subject, tt.args.body)
-			subject, body, err := jwt_service.ValidateToken(token)
+			token := GenerateToken(tt.args.subject, tt.args.body)
+			subject, body, err := ValidateToken(token)
 			if err != nil {
 				t.Errorf("Generate token is invalid. err: %s", err.Error())
 			}

@@ -12,12 +12,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type userDao struct {
+type TypeUserDao struct {
 	db *gorm.DB
 }
 
 // Create implements interfaces.IUserDao
-func (dao userDao) Create(src *entity.User) error {
+func (dao TypeUserDao) Create(src *entity.User) error {
 	hashPwd, err := bcrypt.GenerateFromPassword([]byte(src.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func (dao userDao) Create(src *entity.User) error {
 }
 
 // Delete implements interfaces.IUserDao
-func (dao userDao) Delete(id uint64) error {
+func (dao TypeUserDao) Delete(id uint64) error {
 	return dao.db.Delete(&entity.User{
 		BaseModel: base.BaseModel{
 			ID: id,
@@ -36,7 +36,7 @@ func (dao userDao) Delete(id uint64) error {
 }
 
 // FindAll implements interfaces.IUserDao
-func (dao userDao) FindAll(condition entity.User, pagination basic.Pagination, dest *entity.Users) (count int64, err error) {
+func (dao TypeUserDao) FindAll(condition entity.User, pagination basic.Pagination, dest *entity.Users) (count int64, err error) {
 	tx := dao.db.Model(condition).Where(condition)
 	tx = SetPagination(tx, pagination)
 	err = tx.Find(dest).Error
@@ -48,12 +48,12 @@ func (dao userDao) FindAll(condition entity.User, pagination basic.Pagination, d
 }
 
 // FindOne implements interfaces.IUserDao
-func (dao userDao) FindOne(dest *entity.User) error {
+func (dao TypeUserDao) FindOne(dest *entity.User) error {
 	return dao.db.Where(dest).First(dest).Error
 }
 
 // Login implements interfaces.IUserDao
-func (dao userDao) Login(name string, password string) error {
+func (dao TypeUserDao) Login(name string, password string) error {
 	var user entity.User
 	if err := dao.db.Where(&entity.User{
 		Name: name,
@@ -68,12 +68,12 @@ func (dao userDao) Login(name string, password string) error {
 }
 
 // Update implements interfaces.IUserDao
-func (dao userDao) Update(src *entity.User) error {
+func (dao TypeUserDao) Update(src *entity.User) error {
 	return dao.db.Updates(src).Error
 }
 
 func NewUserDao(db *gorm.DB) interfaces.IUserDao {
-	return &userDao{
+	return &TypeUserDao{
 		db: db,
 	}
 }

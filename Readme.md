@@ -16,3 +16,4 @@
   + [ ] ginkgo
 + [ ] i18n
 + [x] validator
++ [x] DI with wire

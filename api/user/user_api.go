@@ -20,16 +20,24 @@ type TypeUserApi struct {
 	postDao interfaces.IPostDao
 }
 
+type Options struct {
+	UserDao interfaces.IUserDao
+	PostDao interfaces.IPostDao
+}
+
 var UserApi common.IApiRoute
 
 func Init() {
-	UserApi = NewUserApi(dao.UserDao, dao.PostDao)
+	UserApi = NewUserApi(Options{
+		UserDao: dao.UserDao,
+		PostDao: dao.PostDao,
+	})
 }
 
-func NewUserApi(userDao interfaces.IUserDao, postDao interfaces.IPostDao) *TypeUserApi {
+func NewUserApi(opt Options) *TypeUserApi {
 	return &TypeUserApi{
-		userDao: userDao,
-		postDao: postDao,
+		userDao: opt.UserDao,
+		postDao: opt.PostDao,
 	}
 }
 

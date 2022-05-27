@@ -16,6 +16,7 @@ import (
 
 func InitApp(db *gorm.DB) *Application {
 	wire.Build(
+		wire.Struct(new(user.Options), "*"),
 		dao.NewPostDao,
 		dao.NewUserDao,
 		user.NewUserApi,

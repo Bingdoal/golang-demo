@@ -5,6 +5,7 @@ package main
 
 import (
 	"go-demo/api"
+	"go-demo/api/actuator"
 	"go-demo/api/auth"
 	"go-demo/api/post"
 	"go-demo/api/user"
@@ -22,6 +23,7 @@ func InitApp(db *gorm.DB) *Application {
 		user.NewUserApi,
 		auth.NewAuthApi,
 		post.NewPostApi,
+		actuator.NewActuatorApi,
 		api.NewRest,
 		NewApp,
 	)

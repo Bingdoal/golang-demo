@@ -1,6 +1,7 @@
 package api
 
 import (
+	"go-demo/api/actuator"
 	"go-demo/api/auth"
 	"go-demo/api/post"
 	"go-demo/api/user"
@@ -19,7 +20,8 @@ func InitApiInstance() {
 
 func NewRest(authApi *auth.TypeAuthApi,
 	userApi *user.TypeUserApi,
-	postApi *post.TypePostApi) *Rest {
+	postApi *post.TypePostApi,
+	actuatorApi *actuator.TypeActuatorApi) *Rest {
 	if config.Env.GetString("mode") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -34,6 +36,7 @@ func NewRest(authApi *auth.TypeAuthApi,
 	}
 
 	rest.Add("/v1", authApi)
+	rest.Add("/actuator", actuatorApi)
 	rest.Middleware(middleware.AuthHandler).Add("/v1", userApi, postApi)
 	return rest
 }
